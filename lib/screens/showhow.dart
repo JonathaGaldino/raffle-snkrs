@@ -24,15 +24,16 @@ class _ShowImagesFromFirebaseState extends State<ShowImagesFromFirebase> {
     try {
       final ListResult result = await ref.listAll();
 
+      final futures = result.items.map((item) async {
+        // Obtenha uma URL de download assinada para o item
+        final downloadUrl = await item.getDownloadURL();
+        return downloadUrl;
+      }).toList();
+
+      final urls = await Future.wait(futures);
+
       setState(() {
-        imageUrls = result.items.map((item) {
-          // Construa a URL HTTP válida a partir do caminho do Firebase Storage
-          final gsUrl = item.fullPath;
-          final httpUrl = gsUrl.replaceFirst(
-              'gs://raffle-snkrs-by-me.appspot.com/',
-              'https://storage.googleapis.com/raffle-snkrs-by-me.appspot.com/');
-          return httpUrl;
-        }).toList();
+        imageUrls = urls;
       });
     } catch (error) {
       print('Erro ao carregar imagens do Firebase: $error');
