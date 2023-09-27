@@ -1,5 +1,6 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 import '../widgets/snkrs_image_picker.dart';
 
@@ -35,8 +36,43 @@ class _ShowImagesFromFirebaseState extends State<ShowImagesFromFirebase> {
       setState(() {
         imageUrls = urls;
       });
+      // Exibir toast de sucesso
+      showToast('Imagens carregadas com sucesso', true);
     } catch (error) {
       print('Erro ao carregar imagens do Firebase: $error');
+
+      // Exibir toast de falha
+      showToast('Erro ao carregar imagens do Firebase: $error', false);
+    }
+  }
+
+  void showToast(String message, bool success) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor:
+          success ? const Color.fromRGBO(201, 240, 175, 0.719) : Colors.red,
+      textColor: Color.fromARGB(255, 14, 13, 13),
+    );
+  }
+
+  Future<void> deleteImage(String imageUrl) async {
+    final storage = FirebaseStorage.instance;
+
+    try {
+      // Crie uma referência para a imagem usando a URL
+      final ref = storage.refFromURL(imageUrl);
+
+      // Exclua a imagem do Firebase Storage
+      await ref.delete();
+
+      setState(() {
+        // Remova a URL da lista de imagens após a exclusão bem-sucedida
+        imageUrls.remove(imageUrl);
+      });
+    } catch (error) {
+      print('Erro ao excluir imagem do Firebase: $error');
     }
   }
 
@@ -55,17 +91,33 @@ class _ShowImagesFromFirebaseState extends State<ShowImagesFromFirebase> {
               itemBuilder: (context, index) {
                 final imageUrl = imageUrls[index];
 
-                return Container(
-                  height: 100,
-                  width: double.infinity,
-                  color: index % 2 == 0
-                      ? const Color.fromARGB(131, 144, 177, 233)
-                      : const Color.fromARGB(136, 201, 240, 175),
-                  child: Center(
-                    child: Image.network(
-                      imageUrl,
-                      width: 50,
-                      height: 50,
+                return Dismissible(
+                  key: Key(imageUrl), // Chave única para o item
+                  onDismissed: (direction) {
+                    // Chama a função para excluir a imagem ao deslizar
+                    deleteImage(imageUrl);
+                  },
+                  background: Container(
+                    color: Colors.red, // Cor de fundo ao deslizar para excluir
+                    alignment: Alignment.centerRight,
+                    padding: EdgeInsets.only(right: 16.0),
+                    child: Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                    ),
+                  ),
+                  child: Container(
+                    height: 100,
+                    width: double.infinity,
+                    color: index % 2 == 0
+                        ? const Color.fromARGB(131, 144, 177, 233)
+                        : const Color.fromARGB(136, 201, 240, 175),
+                    child: Center(
+                      child: Image.network(
+                        imageUrl,
+                        width: 50,
+                        height: 50,
+                      ),
                     ),
                   ),
                 );

@@ -46,6 +46,7 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:uuid/uuid.dart';
 
@@ -98,9 +99,11 @@ class _SnkrsImagePickerState extends State<SnkrsImagePicker> {
         if (snapshot.state == TaskState.success) {
           final String imageUrl = await snapshot.ref.getDownloadURL();
           widget.onImageUploaded(imageUrl);
+          _showToast('Imagem carregada com sucesso', true);
         }
       } on FirebaseException catch (e) {
         print('Erro ao carregar a imagem: $e');
+        _showToast('Erro ao carregar a imagem: $e', false);
       }
     }
 
@@ -108,6 +111,19 @@ class _SnkrsImagePickerState extends State<SnkrsImagePicker> {
     setState(() {
       imageFiles.clear();
     });
+
+    Navigator.pop(context);
+  }
+
+  void _showToast(String message, bool success) {
+    Fluttertoast.showToast(
+      msg: message,
+      toastLength: Toast.LENGTH_SHORT,
+      gravity: ToastGravity.BOTTOM,
+      backgroundColor:
+          success ? const Color.fromRGBO(201, 240, 175, 0.719) : Colors.red,
+      textColor: Colors.white,
+    );
   }
 
   @override
@@ -125,9 +141,18 @@ class _SnkrsImagePickerState extends State<SnkrsImagePicker> {
           ),
         ),
         ElevatedButton(
-          onPressed: imageFiles.isNotEmpty ? _uploadImages : null,
-          child: Text('Upload Images'),
-        ),
+          onPressed: imageFiles.isNotEmpty
+              ? () {
+                  _uploadImages();
+                }
+              : null, // Define null para desativar o botão
+          style: ElevatedButton.styleFrom(
+            backgroundColor: imageFiles.isNotEmpty
+                ? const Color.fromARGB(131, 144, 177, 233)
+                : Colors.grey, // Cor do botão dependendo do estado
+          ),
+          child: const Text('Upload Images'),
+        )
       ],
     );
   }
