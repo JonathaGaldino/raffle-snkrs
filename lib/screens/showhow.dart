@@ -1,6 +1,7 @@
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:raffle_snkrs_by_me/screens/Info_screen.dart';
 
 import '../widgets/snkrs_image_picker.dart';
 
@@ -76,10 +77,23 @@ class _ShowImagesFromFirebaseState extends State<ShowImagesFromFirebase> {
     }
   }
 
+  void _goToInfoScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => InstructionScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+              onPressed: _goToInfoScreen, icon: const Icon(Icons.info_outline))
+        ],
         backgroundColor: const Color.fromARGB(37, 67, 217, 255),
         title: Text('Edit Screen'),
       ),

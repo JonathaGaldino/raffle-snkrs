@@ -81,7 +81,14 @@ class _SnkrsImagePickerState extends State<SnkrsImagePicker> {
     });
   }
 
+  bool _isUploading = false;
+
   Future<void> _uploadImages() async {
+    setState(() {
+      _isUploading =
+          true; // Defina como verdadeiro para indicar que o upload está em andamento
+    });
+
     final storage = FirebaseStorage.instance;
     final Reference storageRef = storage.ref().child('snkrs_images');
 
@@ -113,6 +120,11 @@ class _SnkrsImagePickerState extends State<SnkrsImagePicker> {
     });
 
     Navigator.pop(context);
+
+    setState(() {
+      _isUploading =
+          false; // Defina como falso para indicar que o upload está completo
+    });
   }
 
   void _showToast(String message, bool success) {
@@ -141,11 +153,11 @@ class _SnkrsImagePickerState extends State<SnkrsImagePicker> {
           ),
         ),
         ElevatedButton(
-          onPressed: imageFiles.isNotEmpty
-              ? () {
+          onPressed: _isUploading || imageFiles.isEmpty
+              ? null
+              : () {
                   _uploadImages();
-                }
-              : null, // Define null para desativar o botão
+                },
           style: ElevatedButton.styleFrom(
             backgroundColor: imageFiles.isNotEmpty
                 ? const Color.fromARGB(131, 144, 177, 233)
