@@ -2,15 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class InstructionScreen extends StatelessWidget {
-  final String linkedInProfileUrl =
-      "https://www.linkedin.com/in/jonatha-galdino-5298601b3/";
-
-  Future<void> _launchURL() async {
-    final Uri launchUri = Uri.parse(linkedInProfileUrl);
-    if (await canLaunchUrl(launchUri.toString() as Uri)) {
-      await launchUrl(launchUri.toString() as Uri);
+  void openLinkedin() async {
+    const url = 'https://www.linkedin.com/in/jonatha-galdino-5298601b3/';
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(Uri.parse(url));
     } else {
-      throw 'Could not launch $linkedInProfileUrl';
+      throw 'Could not launch $url';
     }
   }
 
@@ -43,18 +40,10 @@ class InstructionScreen extends StatelessWidget {
                   number: '3',
                   text:
                       'Para excluir uma imagem, arraste para o lado na tela de edição.'),
-              SizedBox(height: 20.0),
-              GestureDetector(
-                onTap: _launchURL,
-                child: Text(
-                  'Não clica aqui',
-                  style: TextStyle(
-                    fontSize: 16.0,
-                    color: Colors.blue,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
+              SizedBox(height: 500.0),
+              TextButton(
+                  onPressed: openLinkedin,
+                  child: const Text('Não clique aqui!'))
             ],
           ),
         ),
